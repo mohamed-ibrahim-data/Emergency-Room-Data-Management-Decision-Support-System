@@ -1,4 +1,0 @@
-# Local host Python virtual environment (.venv) — Tools & IDE Autocompletion Only
-pyspark==3.5.3
-kafka-python-ng>=2.2.3
-apache-airflow-client>=2.10.0
