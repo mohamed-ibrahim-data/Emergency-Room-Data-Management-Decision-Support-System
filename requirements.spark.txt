@@ -1,7 +1,0 @@
-# Python packages installed inside Spark & Spark Streaming container venv (/opt/venv)
-# Note: pyspark 3.5.3 & py4j are linked directly from /opt/spark/python into /opt/venv
-kafka-python-ng>=2.2.3
-confluent-kafka>=2.6.0
-pandas>=2.2.0
-pyarrow>=17.0.0
-numpy>=1.26.4,<2.1.0
