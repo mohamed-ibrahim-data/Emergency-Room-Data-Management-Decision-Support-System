@@ -1,0 +1,29 @@
+# =============================================================================
+# Dockerfile.airflow — Apache Airflow 2.10.4 + OpenJDK 17 + Spark/Kafka Tools
+# =============================================================================
+FROM apache/airflow:2.10.4-python3.11
+
+USER root
+
+# 1. Install OpenJDK 17 (required by SparkSubmitOperator / spark-submit)
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openjdk-17-jre-headless procps curl \
+    && ln -s /usr/lib/jvm/java-17-openjdk-* /opt/java \
+    && mkdir -p /opt/airflow/db /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins \
+                /opt/spark-jobs /opt/spark-streaming /opt/data \
+    && chown -R airflow:0 /opt/airflow/db /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins \
+                          /opt/spark-jobs /opt/spark-streaming /opt/data \
+    && chmod -R g+rwX /opt/airflow/db \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+ENV JAVA_HOME=/opt/java
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# 2. Install Spark & Kafka Airflow providers + virtualenv support as airflow user
+USER airflow
+COPY --chown=airflow:0 requirements.airflow.txt /tmp/requirements.airflow.txt
+RUN pip install --no-cache-dir -r /tmp/requirements.airflow.txt \
+    && rm -f /tmp/requirements.airflow.txt
+
+WORKDIR /opt/airflow

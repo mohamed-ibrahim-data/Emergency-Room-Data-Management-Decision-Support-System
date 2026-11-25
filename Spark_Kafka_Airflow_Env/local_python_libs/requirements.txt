@@ -1,0 +1,34 @@
+# =============================================================================
+# ER Platform — Pure Python Libraries (Zero Overlap with Spark/Kafka/Airflow)
+# =============================================================================
+
+# 1. Web API & Backend Server
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+pydantic>=2.9.0
+
+# 2. Data Processing, ETL & Analytical Warehouse
+pandas>=2.2.0
+numpy>=2.0.0
+pyarrow>=17.0.0
+duckdb>=1.1.0
+Faker>=30.0.0
+
+# 3. Machine Learning, Class Balancing, Tuning & Explainability (SHAP)
+scikit-learn>=1.5.0
+scipy>=1.14.0
+xgboost>=2.1.0
+imbalanced-learn>=0.12.0
+optuna>=4.0.0
+shap>=0.46.0
+joblib>=1.4.0
+
+# 4. Application Database & Cache Drivers
+sqlalchemy>=2.0.0
+psycopg2-binary>=2.9.9
+redis>=5.0.0
+
+# 5. Visualization & Clinical PDF Reporting
+matplotlib>=3.9.0
+seaborn>=0.13.2
+reportlab>=4.2.0
