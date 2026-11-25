@@ -1,6 +1,0 @@
-# Python packages installed inside Apache Airflow 2.10.4 (Python 3.11)
-apache-airflow-providers-apache-spark>=4.11.0
-apache-airflow-providers-apache-kafka>=1.6.0
-pyspark==3.5.3
-kafka-python-ng>=2.2.3
-virtualenv>=20.26.0
