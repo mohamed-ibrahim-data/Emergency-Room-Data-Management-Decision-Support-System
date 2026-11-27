@@ -247,6 +247,49 @@ services:
       - ./grafana/provisioning:/etc/grafana/provisioning
     restart: unless-stopped
 
+  # ===========================================================================
+  # 7. JUPYTER NOTEBOOK (JupyterLab) — Connected to Spark Cluster — localhost:8888
+  # ===========================================================================
+  jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    image: local/spark-venv:3.5.3
+    container_name: jupyter
+    depends_on:
+      spark-master:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    ports:
+      - "${JUPYTER_PORT:-8888}:8888"
+      - "${JUPYTER_SPARK_UI_PORT:-4041}:4040"
+    environment:
+      SPARK_MASTER_URL: spark://spark-master:7077
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      PYSPARK_SUBMIT_ARGS: "--master spark://spark-master:7077 --conf spark.driver.host=jupyter --conf spark.driver.bindAddress=0.0.0.0 pyspark-shell"
+    command:
+      - /opt/venv/bin/jupyter
+      - lab
+      - --ip=0.0.0.0
+      - --port=8888
+      - --no-browser
+      - --notebook-dir=/opt/notebooks
+      - --IdentityProvider.token=${JUPYTER_TOKEN:-}
+    volumes:
+      - ./notebooks:/opt/notebooks
+      - ./spark/jobs:/opt/spark-jobs
+      - ./spark/streaming:/opt/spark-streaming
+      - ./data/bronze:/opt/data/bronze
+      - ./data/silver:/opt/data/silver
+      - ./dataset:/opt/dataset
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost:8888/api >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
 volumes:
   spark_checkpoints:
   postgres_data:

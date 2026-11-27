@@ -40,5 +40,6 @@ echo   Spark Worker Web UI    : http://localhost:8083
 echo   Spark Streaming UI     : http://localhost:4040
 echo   Airflow Web UI         : http://localhost:8088 (admin / admin)
 echo   Grafana Dashboards     : http://localhost:3000 (admin / admin)
+echo   JupyterLab (PySpark)   : http://localhost:8888 (Spark UI: :4041)
 echo ======================================================================
 pause
