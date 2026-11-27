@@ -1,8 +1,8 @@
 @echo off
-title Stop Docker Environment (Spark + Spark Streaming + Kafka + Airflow)
+title Stop Docker Environment (ER Data Engineering — Full Tech Stack)
 cd /d "%~dp0"
 
-echo Stopping Spark, Spark Streaming, Kafka, and Airflow containers...
+echo Stopping all ER Data Engineering containers (Kafka, PostgreSQL, Spark, Airflow, Grafana)...
 docker compose down
 echo Done!
 pause

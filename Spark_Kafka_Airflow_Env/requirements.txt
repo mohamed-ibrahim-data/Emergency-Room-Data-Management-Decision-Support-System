@@ -2,3 +2,5 @@
 pyspark==3.5.3
 kafka-python-ng>=2.2.3
 apache-airflow-client>=2.10.0
+psycopg2-binary>=2.9.9
+sqlalchemy>=2.0.0

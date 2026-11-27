@@ -1,10 +1,10 @@
 @echo off
-title Start Docker Environment (Spark + Spark Streaming + Kafka + Airflow)
+title Start Docker Environment (ER Data Engineering — Full Tech Stack)
 cd /d "%~dp0"
 
 echo ======================================================================
-echo   Starting Pure 4-Tool Docker Virtual Environment
-echo   Apache Kafka + Apache Spark + Spark Streaming + Apache Airflow
+echo   Starting Emergency Room Data Engineering Docker Environment
+echo   Kafka + PostgreSQL + Spark + Spark Streaming + Airflow + Grafana
 echo ======================================================================
 echo.
 
@@ -34,9 +34,11 @@ docker compose ps
 echo.
 echo ======================================================================
 echo   Kafka Broker           : localhost:9092 (internal: kafka:29092)
+echo   PostgreSQL (Gold DWH)  : localhost:5432 (er_admin / er_password)
 echo   Spark Master Web UI    : http://localhost:8082 (RPC: spark://localhost:7077)
 echo   Spark Worker Web UI    : http://localhost:8083
 echo   Spark Streaming UI     : http://localhost:4040
 echo   Airflow Web UI         : http://localhost:8088 (admin / admin)
+echo   Grafana Dashboards     : http://localhost:3000 (admin / admin)
 echo ======================================================================
 pause

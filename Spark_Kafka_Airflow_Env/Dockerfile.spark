@@ -24,6 +24,10 @@ RUN curl -fsSL "${MAVEN_BASE}/org/apache/spark/spark-sql-kafka-0-10_2.12/3.5.3/s
     && curl -fsSL "${MAVEN_BASE}/org/apache/commons/commons-pool2/2.11.1/commons-pool2-2.11.1.jar" \
       -o /opt/spark/jars/commons-pool2-2.11.1.jar
 
+# 2b. PostgreSQL JDBC driver for Star Schema (Gold Layer) writes
+RUN curl -fsSL "https://jdbc.postgresql.org/download/postgresql-42.7.4.jar" \
+      -o /opt/spark/jars/postgresql-42.7.4.jar
+
 # 3. Create isolated Python virtual environment (/opt/venv) and link built-in PySpark
 COPY requirements.spark.txt /tmp/requirements.spark.txt
 RUN python3 -m venv /opt/venv \
