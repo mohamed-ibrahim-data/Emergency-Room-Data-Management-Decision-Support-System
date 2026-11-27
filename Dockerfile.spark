@@ -37,11 +37,12 @@ RUN python3 -m venv /opt/venv \
     && ls -d /opt/spark/python /opt/spark/python/lib/py4j-*-src.zip > "${SITE_PKGS}/pyspark_builtin.pth" \
     && rm -f /tmp/requirements.spark.txt
 
-# 4. Prepare clean workspace mount directories
-RUN mkdir -p /opt/spark-jobs /opt/spark-streaming /opt/data /tmp/spark-checkpoints \
-    && chown -R spark:spark /opt/venv /opt/spark/jars /opt/spark-jobs /opt/spark-streaming /opt/data /tmp/spark-checkpoints
+# 4. Prepare clean workspace mount directories and user home for Jupyter
+RUN mkdir -p /home/spark/.local /home/spark/.jupyter /opt/notebooks /opt/spark-jobs /opt/spark-streaming /opt/data /tmp/spark-checkpoints \
+    && chown -R spark:spark /home/spark /opt/notebooks /opt/venv /opt/spark/jars /opt/spark-jobs /opt/spark-streaming /opt/data /tmp/spark-checkpoints
 
 # Activate /opt/venv for all Spark drivers, workers, and shells
+ENV HOME=/home/spark
 ENV VIRTUAL_ENV=/opt/venv
 ENV PATH="/opt/venv/bin:/opt/spark/bin:/opt/spark/sbin:${PATH}"
 ENV PYSPARK_PYTHON=/opt/venv/bin/python

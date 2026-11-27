@@ -18,12 +18,14 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV JAVA_HOME=/opt/java
-ENV PATH="${JAVA_HOME}/bin:${PATH}"
+ENV PATH="/home/airflow/.local/bin:${JAVA_HOME}/bin:${PATH}"
 
 # 2. Install Spark & Kafka Airflow providers + virtualenv support as airflow user
 USER airflow
 COPY --chown=airflow:0 requirements.airflow.txt /tmp/requirements.airflow.txt
-RUN pip install --no-cache-dir -r /tmp/requirements.airflow.txt \
+RUN pip install --no-cache-dir --timeout 120 --retries 5 \
+    --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.10.4/constraints-3.11.txt" \
+    -r /tmp/requirements.airflow.txt \
     && rm -f /tmp/requirements.airflow.txt
 
 WORKDIR /opt/airflow

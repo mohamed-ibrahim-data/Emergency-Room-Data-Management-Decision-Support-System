@@ -265,6 +265,7 @@ services:
       - "${JUPYTER_PORT:-8888}:8888"
       - "${JUPYTER_SPARK_UI_PORT:-4041}:4040"
     environment:
+      HOME: /home/spark
       SPARK_MASTER_URL: spark://spark-master:7077
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       PYSPARK_SUBMIT_ARGS: "--master spark://spark-master:7077 --conf spark.driver.host=jupyter --conf spark.driver.bindAddress=0.0.0.0 pyspark-shell"
@@ -275,7 +276,9 @@ services:
       - --port=8888
       - --no-browser
       - --notebook-dir=/opt/notebooks
-      - --IdentityProvider.token=${JUPYTER_TOKEN:-}
+      - --ServerApp.token=${JUPYTER_TOKEN:-}
+      - --ServerApp.allow_origin=*
+      - --ServerApp.disable_check_xsrf=True
     volumes:
       - ./notebooks:/opt/notebooks
       - ./spark/jobs:/opt/spark-jobs
@@ -284,7 +287,7 @@ services:
       - ./data/silver:/opt/data/silver
       - ./dataset:/opt/dataset
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8888/api >/dev/null || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:8888/ >/dev/null || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 10
