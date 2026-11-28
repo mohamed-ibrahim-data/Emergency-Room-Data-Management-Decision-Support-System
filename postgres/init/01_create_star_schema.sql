@@ -55,12 +55,12 @@ CREATE TABLE IF NOT EXISTS fact_er_visit (
     discharge_time_key         INT REFERENCES dim_time(time_key),
     diagnosis_key              INT REFERENCES dim_diagnosis(diagnosis_key),
     department_key             INT REFERENCES dim_department(department_key),
-    triage_level               INT,
-    wait_time_minutes          INT,
-    treatment_duration_minutes INT,
-    total_los_minutes          INT,
+    triage_level               INT CHECK (triage_level BETWEEN 1 AND 5),
+    wait_time_minutes          INT CHECK (wait_time_minutes >= 0),
+    treatment_duration_minutes INT CHECK (treatment_duration_minutes >= 0),
+    total_los_minutes          INT CHECK (total_los_minutes >= 0),
     disposition                VARCHAR(50),
-    satisfaction_score         DECIMAL(3,1)
+    satisfaction_score         DECIMAL(3,1) CHECK (satisfaction_score BETWEEN 1 AND 5)
 );
 
 -- ===== INDEXES for common analytical queries =====
