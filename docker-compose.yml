@@ -123,6 +123,39 @@ services:
       - ./data/silver:/opt/data/silver
     restart: unless-stopped
 
+  spark-worker-2:
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
+    image: local/spark-venv:3.5.3
+    container_name: spark-worker-2
+    depends_on:
+      spark-master:
+        condition: service_healthy
+    ports:
+      - "${SPARK_WORKER_2_UI_PORT:-8084}:8081"
+    environment:
+      SPARK_DAEMON_MEMORY: 256m
+      SPARK_WORKER_MEMORY: "${SPARK_WORKER_MEMORY:-2g}"
+      SPARK_WORKER_CORES: "${SPARK_WORKER_CORES:-2}"
+      SPARK_NO_DAEMONIZE: "true"
+    command:
+      - /opt/spark/bin/spark-class
+      - org.apache.spark.deploy.worker.Worker
+      - spark://spark-master:7077
+      - --webui-port
+      - "8081"
+      - --memory
+      - "${SPARK_WORKER_MEMORY:-2g}"
+      - --cores
+      - "${SPARK_WORKER_CORES:-2}"
+    volumes:
+      - ./spark/jobs:/opt/spark-jobs
+      - ./spark/streaming:/opt/spark-streaming
+      - ./data/bronze:/opt/data/bronze
+      - ./data/silver:/opt/data/silver
+    restart: unless-stopped
+
   # ===========================================================================
   # 4. APACHE SPARK STREAMING (Structured Streaming & DStreams + Kafka JARs)
   #    Bronze Layer Ingestion — Raw Data → Parquet
