@@ -1,14 +1,14 @@
 # =============================================================================
-# Dockerfile.airflow — Apache Airflow 2.10.4 + OpenJDK 17 + Spark/Kafka Tools
+# Dockerfile.airflow — Apache Airflow 3.4.0 + OpenJDK 21 + Spark/Kafka Tools
 # =============================================================================
-FROM apache/airflow:2.10.4-python3.11
+FROM apache/airflow:3.4.0-python3.11
 
 USER root
 
-# 1. Install OpenJDK 17 (required by SparkSubmitOperator / spark-submit)
+# 1. Install OpenJDK 21 (Debian Trixie; required by SparkSubmitOperator / spark-submit for Spark 4.3)
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends openjdk-17-jre-headless procps curl \
-    && ln -s /usr/lib/jvm/java-17-openjdk-* /opt/java \
+    && apt-get install -y --no-install-recommends openjdk-21-jre-headless procps curl \
+    && ln -s /usr/lib/jvm/java-21-openjdk-* /opt/java \
     && mkdir -p /opt/airflow/db /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins \
                 /opt/spark-jobs /opt/spark-streaming /opt/data \
     && chown -R airflow:0 /opt/airflow/db /opt/airflow/dags /opt/airflow/logs /opt/airflow/plugins \
@@ -24,7 +24,7 @@ ENV PATH="/home/airflow/.local/bin:${JAVA_HOME}/bin:${PATH}"
 USER airflow
 COPY --chown=airflow:0 requirements.airflow.txt /tmp/requirements.airflow.txt
 RUN pip install --no-cache-dir --timeout 120 --retries 5 \
-    --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-2.10.4/constraints-3.11.txt" \
+    --constraint "https://raw.githubusercontent.com/apache/airflow/constraints-3.4.0/constraints-3.11.txt" \
     -r /tmp/requirements.airflow.txt \
     && rm -f /tmp/requirements.airflow.txt
 

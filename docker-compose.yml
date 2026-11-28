@@ -1,9 +1,9 @@
 services:
   # ===========================================================================
-  # 1. APACHE KAFKA 3.9 (KRaft Mode — No ZooKeeper) — localhost:9092
+  # 1. APACHE KAFKA 4.4 (KRaft Mode — No ZooKeeper) — localhost:9092
   # ===========================================================================
   kafka:
-    image: apache/kafka:3.9.0
+    image: apache/kafka:4.4.0
     container_name: kafka
     ports:
       - "${KAFKA_PORT:-9092}:9092"
@@ -54,14 +54,14 @@ services:
     restart: unless-stopped
 
   # ===========================================================================
-  # 3. APACHE SPARK 3.5.3 CLUSTER (Master :8082 / Worker :8083 + /opt/venv)
+  # 3. APACHE SPARK 4.3.0 CLUSTER (Master :8082 / Worker :8083 + /opt/venv)
   #    Silver Layer — Cleaning & Transformation
   # ===========================================================================
   spark-master:
     build:
       context: .
       dockerfile: Dockerfile.spark
-    image: local/spark-venv:3.5.3
+    image: local/spark-venv:4.3.0
     container_name: spark-master
     ports:
       - "${SPARK_MASTER_UI_PORT:-8082}:8080"
@@ -94,7 +94,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.spark
-    image: local/spark-venv:3.5.3
+    image: local/spark-venv:4.3.0
     container_name: spark-worker
     depends_on:
       spark-master:
@@ -127,7 +127,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.spark
-    image: local/spark-venv:3.5.3
+    image: local/spark-venv:4.3.0
     container_name: spark-worker-2
     depends_on:
       spark-master:
@@ -164,7 +164,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.spark
-    image: local/spark-venv:3.5.3
+    image: local/spark-venv:4.3.0
     container_name: spark-streaming
     depends_on:
       kafka:
@@ -199,20 +199,20 @@ services:
       - ./data/silver:/opt/data/silver
       - spark_checkpoints:/tmp/spark-checkpoints
     healthcheck:
-      test: ["CMD-SHELL", "test -x /opt/venv/bin/python && test -f /opt/spark/jars/spark-sql-kafka-0-10_2.12-3.5.3.jar"]
+      test: ["CMD-SHELL", "test -x /opt/venv/bin/python && test -f /opt/spark/jars/spark-sql-kafka-0-10_2.13-4.3.0.jar"]
       interval: 15s
       timeout: 5s
       retries: 5
     restart: unless-stopped
 
   # ===========================================================================
-  # 5. APACHE AIRFLOW 2.10.4 (Orchestrator UI :8088 — admin / admin)
+  # 5. APACHE AIRFLOW 3.4.0 (Orchestrator UI :8088 — LocalExecutor)
   # ===========================================================================
   airflow:
     build:
       context: .
       dockerfile: Dockerfile.airflow
-    image: local/airflow-venv:2.10.4
+    image: local/airflow-venv:3.4.0
     container_name: airflow
     depends_on:
       kafka:
@@ -224,11 +224,14 @@ services:
     ports:
       - "${AIRFLOW_UI_PORT:-8088}:8080"
     environment:
-      AIRFLOW__CORE__EXECUTOR: SequentialExecutor
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
       AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://${POSTGRES_USER:-er_admin}:${POSTGRES_PASSWORD:-er_password}@postgres:5432/${POSTGRES_DB:-er_data_warehouse}"
       AIRFLOW__CORE__LOAD_EXAMPLES: "false"
-      AIRFLOW__WEBSERVER__WORKERS: "1"
-      AIRFLOW__WEBSERVER__SECRET_KEY: "${AIRFLOW_SECRET_KEY:-spark-kafka-airflow-dev-secret}"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_ALL_ADMINS: "true"
+      AIRFLOW__CORE__EXECUTION_API_SERVER_URL: "http://localhost:8080/execution/"
+      AIRFLOW__API__WORKERS: "1"
+      AIRFLOW__API__SECRET_KEY: "${AIRFLOW_SECRET_KEY:-spark-kafka-airflow-dev-secret}"
+      AIRFLOW__API_AUTH__JWT_SECRET: "${AIRFLOW_JWT_SECRET:-spark-kafka-airflow-jwt-secret}"
       AIRFLOW_CONN_SPARK_DEFAULT: "spark://spark-master:7077"
       AIRFLOW_CONN_KAFKA_DEFAULT: '{"conn_type":"kafka","extra":{"bootstrap.servers":"kafka:29092","group.id":"airflow-group","security.protocol":"PLAINTEXT"}}'
       AIRFLOW_CONN_POSTGRES_DEFAULT: "postgresql://${POSTGRES_USER:-er_admin}:${POSTGRES_PASSWORD:-er_password}@postgres:5432/${POSTGRES_DB:-er_data_warehouse}"
@@ -244,27 +247,22 @@ services:
     command:
       - |
         airflow db migrate &&
-        airflow users create \
-          --username "${AIRFLOW_ADMIN_USER:-admin}" \
-          --password "${AIRFLOW_ADMIN_PASSWORD:-admin}" \
-          --firstname Admin \
-          --lastname User \
-          --role Admin \
-          --email admin@local.dev || true
         airflow scheduler &
-        exec airflow webserver --port 8080 --workers 1
+        airflow dag-processor &
+        exec airflow api-server --port 8080
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:8080/api/v2/monitor/health || exit 1"]
       interval: 15s
       timeout: 10s
       retries: 15
+      start_period: 30s
     restart: unless-stopped
 
   # ===========================================================================
-  # 6. GRAFANA 11 — Data Visualization, Monitoring & Alerting — localhost:3000
+  # 6. GRAFANA 13.3.2 — Data Visualization, Monitoring & Alerting — localhost:3000
   # ===========================================================================
   grafana:
-    image: grafana/grafana:11.4.0
+    image: grafana/grafana:13.3.2
     container_name: grafana
     depends_on:
       postgres:
@@ -287,7 +285,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.spark
-    image: local/spark-venv:3.5.3
+    image: local/spark-venv:4.3.0
     container_name: jupyter
     depends_on:
       spark-master:
@@ -324,6 +322,23 @@ services:
       interval: 15s
       timeout: 5s
       retries: 10
+    restart: unless-stopped
+
+  # ===========================================================================
+  # 8. KAFKA-UI (Kafbat) — Kafka Cluster Browser — localhost:8090
+  # ===========================================================================
+  kafka-ui:
+    image: kafbat/kafka-ui:latest
+    container_name: kafka-ui
+    depends_on:
+      kafka:
+        condition: service_healthy
+    ports:
+      - "${KAFKA_UI_PORT:-8090}:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: ER-Kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+      DYNAMIC_CONFIG_ENABLED: "true"
     restart: unless-stopped
 
 volumes:

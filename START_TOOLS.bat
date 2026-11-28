@@ -39,8 +39,9 @@ echo   Spark Master Web UI    : http://localhost:8082 (RPC: spark://localhost:70
 echo   Spark Worker Web UI    : http://localhost:8083
 echo   Spark Worker 2 Web UI  : http://localhost:8084
 echo   Spark Streaming UI     : http://localhost:4040
-echo   Airflow Web UI         : http://localhost:8088 (admin / admin)
+echo   Airflow Web UI         : http://localhost:8088 (auto-login admin)
 echo   Grafana Dashboards     : http://localhost:3000 (admin / admin)
 echo   JupyterLab (PySpark)   : http://localhost:8888 (Spark UI: :4041)
+echo   Kafka-UI (Kafbat)      : http://localhost:8090
 echo ======================================================================
 pause

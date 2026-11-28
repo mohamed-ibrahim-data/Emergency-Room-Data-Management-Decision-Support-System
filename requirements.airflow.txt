@@ -1,8 +1,8 @@
-# Python packages installed inside Apache Airflow 2.10.4 (Python 3.11)
-apache-airflow-providers-apache-spark==4.11.3
-apache-airflow-providers-apache-kafka==1.6.1
-apache-airflow-providers-postgres==5.14.0
-pyspark==3.5.3
+# Python packages installed inside Apache Airflow 3.4.0 (Python 3.11)
+apache-airflow-providers-apache-spark==6.3.4
+apache-airflow-providers-apache-kafka==2.1.0
+apache-airflow-providers-postgres==7.1.1
+pyspark==4.3.0
 kafka-python-ng>=2.2.3
 virtualenv>=20.26.0
-psycopg2-binary==2.9.10
+psycopg2-binary==2.9.13
