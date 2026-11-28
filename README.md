@@ -84,3 +84,39 @@ Stores ER visits, operational metrics, and visit outcomes.
 | `satisfaction_score` | DECIMAL(3,1) | Patient satisfaction rating. | 4.5 |
 
 > All example values are illustrative. Metric definitions, triage levels, satisfaction scales, and weekend rules should follow the project's agreed business rules.
+
+## Folder Structure
+
+```text
+Spark_Kafka_Airflow_Env/
+├── docker-compose.yml            # Orchestrates all 9 services
+├── Dockerfile.spark              # Spark 3.5.3 + Kafka JARs + PostgreSQL JDBC + /opt/venv
+├── Dockerfile.airflow            # Airflow 2.10.4 + OpenJDK 17 + Spark/Kafka/Postgres providers
+├── requirements.spark.txt        # Packages inside Spark's /opt/venv
+├── requirements.airflow.txt      # Packages inside Airflow
+├── requirements.txt              # Packages for local Windows .venv (IDE & CLI)
+├── .env                          # Ports, memory caps, credentials
+├── START_TOOLS.bat               # Builds & starts all services in Docker
+├── STOP_TOOLS.bat                # Stops all containers
+├── SETUP_VENV.bat                # Creates & activates local Windows .venv
+├── airflow/
+│   ├── dags/                     # Drop your Airflow DAGs here → /opt/airflow/dags
+│   ├── logs/                     # Airflow task logs
+│   └── plugins/                  # Airflow plugins
+├── spark/
+│   ├── jobs/                     # Drop batch PySpark scripts here → /opt/spark-jobs
+│   └── streaming/                # Drop Spark Streaming scripts here → /opt/spark-streaming
+├── data/
+│   ├── bronze/                   # Bronze Layer — Raw Parquet files
+│   └── silver/                   # Silver Layer — Cleaned Parquet files
+├── postgres/
+│   └── init/                     # SQL init scripts (run on first startup)
+│       └── 01_create_star_schema.sql
+├── grafana/
+│   └── provisioning/
+│       └── datasources/
+│           └── postgres.yml      # Auto-provisions PostgreSQL datasource
+├── d.generator/
+│   └── faker.py                  # Python data simulation script
+└── dataset/                      # Sample CSV datasets
+```
