@@ -88,7 +88,7 @@ Stores ER visits, operational metrics, and visit outcomes.
 ## Folder Structure
 
 ```text
-Spark_Kafka_Airflow_Env/
+./
 ├── docker-compose.yml            # Orchestrates all 9 services
 ├── Dockerfile.spark              # Spark 3.5.3 + Kafka JARs + PostgreSQL JDBC + /opt/venv
 ├── Dockerfile.airflow            # Airflow 2.10.4 + OpenJDK 17 + Spark/Kafka/Postgres providers
